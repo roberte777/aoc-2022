@@ -109,6 +109,9 @@ fn main() {
         let (num, from, to) = (instruction[0], instruction[1], instruction[2]);
         let split_nmbr = ship_obj.stacks[from - 1].crates.len() - num;
         let mut crates = ship_obj.stacks[from - 1].crates.split_off(split_nmbr);
+        //below is the only line different from part 1 and 2
+        //leave commented out for part 2, uncomment for part 1
+        // crates.reverse();
         ship_obj.stacks[to - 1].crates.append(&mut crates);
     }
 
