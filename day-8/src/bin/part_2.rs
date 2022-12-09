@@ -15,9 +15,52 @@ struct Forest {
 }
 
 impl Forest {
-    // pub fn num_visible(&self) -> usize {
-    //     todo!()
-    // }
+    pub fn num_visible(&self) -> usize {
+        let length = self.trees[1].len();
+        let height = self.trees.len();
+        let mut vis_count = 0;
+
+        for y in 0..height {
+            for x in 0..length {
+                if x == 0 || x == length - 1 || y == 0 || y == height - 1 {
+                    vis_count += 1;
+                    continue;
+                }
+                let curr_tree_height = &self.trees[y][x].height;
+                let (mut vis_left, mut vis_right, mut vis_up, mut vis_down) =
+                    (true, true, true, true);
+                for temp_x in (x + 1)..length {
+                    if &self.trees[y][temp_x].height >= curr_tree_height {
+                        vis_right = false;
+                        break;
+                    }
+                }
+                for temp_x in (0..x).rev() {
+                    if &self.trees[y][temp_x].height >= curr_tree_height {
+                        vis_left = false;
+                        break;
+                    }
+                }
+
+                for temp_y in (y + 1)..height {
+                    if &self.trees[temp_y][x].height >= curr_tree_height {
+                        vis_down = false;
+                        break;
+                    }
+                }
+                for temp_y in (0..y).rev() {
+                    if &self.trees[temp_y][x].height >= curr_tree_height {
+                        vis_up = false;
+                        break;
+                    }
+                }
+                if vis_up || vis_down || vis_left || vis_right {
+                    vis_count += 1
+                }
+            }
+        }
+        return vis_count;
+    }
     pub fn best_scenic_score(&self) -> usize {
         let length = self.trees[1].len();
         let height = self.trees.len();
@@ -31,8 +74,6 @@ impl Forest {
                 let starting_tree_height = self.trees[y][x].height;
                 let (mut score_left, mut score_right, mut score_up, mut score_down) = (0, 0, 0, 0);
                 //right
-                // let mut next_tree_height = self.trees[y][x + 1].height;
-                // if next_tree_height < starting_tree_height {
                 for temp_x in (x + 1)..length {
                     if self.trees[y][temp_x].height < starting_tree_height {
                         score_right += 1;
@@ -41,10 +82,7 @@ impl Forest {
                         break;
                     }
                 }
-                // }
                 //left
-                // next_tree_height = self.trees[y][x - 1].height;
-                // if next_tree_height < starting_tree_height {
                 for temp_x in (0..x).rev() {
                     if self.trees[y][temp_x].height < starting_tree_height {
                         score_left += 1;
@@ -53,10 +91,7 @@ impl Forest {
                         break;
                     }
                 }
-                // }
                 //down
-                // next_tree_height = self.trees[y + 1][x].height;
-                // if next_tree_height < starting_tree_height {
                 for temp_y in y + 1..height {
                     if self.trees[temp_y][x].height < starting_tree_height {
                         score_down += 1;
@@ -65,10 +100,7 @@ impl Forest {
                         break;
                     }
                 }
-                // }
                 //up
-                // next_tree_height = self.trees[y - 1][x].height;
-                // if next_tree_height < starting_tree_height {
                 for temp_y in (0..y).rev() {
                     if self.trees[temp_y][x].height < starting_tree_height {
                         score_up += 1;
@@ -77,15 +109,9 @@ impl Forest {
                         break;
                     }
                 }
-                // }
-                println!(
-                    "x,y: {} {}\tscores: {} {} {} {}",
-                    x, y, score_left, score_right, score_up, score_down
-                );
                 scores[y][x] = score_left * score_right * score_up * score_down;
             }
         }
-        println!("{:?}", scores);
         return scores
             .into_iter()
             .map(|row| row.into_iter().max().unwrap())
