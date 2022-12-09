@@ -1,0 +1,48 @@
+#[derive(Debug)]
+struct File<'a> {
+    name: &'a str,
+    size: usize,
+}
+#[derive(Debug)]
+struct Directory<'a> {
+    name: &'a str,
+    files: Vec<File<'a>>,
+}
+fn main() {
+    let input = std::fs::read_to_string("src/input_1.test").unwrap();
+    let mut dirs = vec![];
+    for line in input.lines() {
+        if line.contains("dir") {
+            dirs.push(Directory {
+                name: line.split_once(" ").unwrap().1,
+                files: vec![],
+            });
+        }
+    }
+    let mut iter = input.lines().into_iter().skip(2);
+    while let Some(line) = iter.next() {
+        println!("{}", line);
+        if line.starts_with("$ cd") {
+            let curr_dir = match dirs.iter_mut().find(|dir| {
+                let test = line.split(" ").last().unwrap() == dir.name;
+                println!("{:?} {:?}", line.split(" ").last().unwrap(), dir.name);
+                return test;
+            }) {
+                Some(val) => val,
+                _ => {
+                    continue;
+                }
+            };
+
+            while !iter.next().unwrap().starts_with("$") {
+                let (size, name) = iter.next().unwrap().split_once(" ").unwrap();
+                curr_dir.files.push(File {
+                    size: size.parse::<usize>().unwrap(),
+                    name,
+                });
+            }
+        }
+    }
+
+    println!("{:?}", dirs);
+}
